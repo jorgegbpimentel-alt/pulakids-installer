@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10283d">
+<meta name="robots" content="noindex,nofollow">
+<title>Instalar PulaKids</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;padding:22px;background:linear-gradient(145deg,#10283d,#1d4057);font-family:Arial,sans-serif;color:#172b3a}
+main{width:100%;max-width:410px;background:#fff;border-radius:22px;padding:30px 24px;box-shadow:0 18px 50px #0004}
+.logo{font-size:30px;font-weight:800;letter-spacing:.3px;color:#10283d;text-align:center}
+.sub{text-align:center;color:#627382;margin:8px 0 26px}
+label{display:block;font-weight:700;margin:0 0 8px}
+input{width:100%;padding:15px;border:1px solid #cbd5dc;border-radius:11px;font-size:17px;outline-color:#2c789b}
+button{width:100%;margin-top:16px;padding:15px;border:0;border-radius:11px;background:#10283d;color:#fff;font-size:16px;font-weight:700}
+button:disabled{opacity:.6}
+#msg{min-height:22px;margin:16px 0 0;text-align:center;font-size:14px;color:#a12b2b}
+.note{text-align:center;color:#788791;font-size:12px;margin-top:22px}
+</style>
+</head>
+<body>
+<main>
+<div class="logo">PulaKids</div>
+<p class="sub">Instalação da aplicação</p>
+<form id="form">
+<label for="password">Palavra-passe de acesso</label>
+<input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Introduz a palavra-passe">
+<button id="submit" type="submit">Aceder ao download</button>
+</form>
+<p id="msg" role="status" aria-live="polite"></p>
+<p class="note">Página privada de instalação PulaKids</p>
+</main>
+<script>
+const API_URL = "https://hwbeuemkbqerbksiaeex.supabase.co/functions/v1/pulakids-installer";
+const form = document.getElementById("form");
+const password = document.getElementById("password");
+const button = document.getElementById("submit");
+const msg = document.getElementById("msg");
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  msg.textContent = "A validar acesso...";
+  button.disabled = true;
+  button.textContent = "A verificar...";
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({password: password.value})
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Não foi possível validar o acesso.");
+    if (!data.downloadUrl) throw new Error("O link de instalação não foi recebido.");
+    msg.textContent = "A iniciar o download...";
+    window.location.href = data.downloadUrl;
+  } catch (error) {
+    msg.textContent = error.message || "Ocorreu um erro. Tenta novamente.";
+    button.disabled = false;
+    button.textContent = "Aceder ao download";
+  }
+});
+</script>
+</body>
+</html>
